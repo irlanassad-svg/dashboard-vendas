@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Desempenho de Vendas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .glass-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .filter-btn-active { background-color: #2563eb; color: white; border-color: #2563eb; }
+        .filter-btn-inactive { background-color: white; color: #475569; border-color: #e2e8f0; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <div class="mb-4 flex justify-between items-center flex-wrap gap-4">
+            <div class="flex items-center gap-6">
+                <div class="bg-slate-800 p-3 rounded-xl shadow-lg">
+                    <img src="6B804A82-1315-467F-9EC5-82F02AAFC79E.PNG" alt="Logo Distribuidora Minas Mais" class="h-12 w-auto object-contain">
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-slate-900" id="main-title">Visão Geral de Vendas</h1>
+                    <p class="text-sm text-slate-500 mt-1">Acompanhamento de Metas, Realizado e Ranking de Vendedores</p>
+                </div>
+            </div>
+            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition-colors flex items-center gap-2">
+                <i class="fas fa-print"></i> Exportar PDF
+            </button>
+        </div>
+
+        <div id="tabs-container" class="flex space-x-4 border-b border-slate-300 mb-6 transition-all">
+            <button id="tab-positivacao" onclick="setTab('positivacao')" class="px-4 py-2 font-bold text-blue-600 border-b-2 border-blue-600 focus:outline-none transition-colors">
+                <i class="fas fa-users mr-2"></i> Positivação (Clientes)
+            </button>
+            <button id="tab-faturamento" onclick="setTab('faturamento')" class="px-4 py-2 font-bold text-slate-500 hover:text-slate-800 focus:outline-none transition-colors">
+                <i class="fas fa-money-bill-wave mr-2"></i> Faturamento (R$)
+            </button>
+            <button id="tab-volume" onclick="setTab('volume')" class="px-4 py-2 font-bold text-slate-500 hover:text-slate-800 focus:outline-none transition-colors">
+                <i class="fas fa-box mr-2"></i> Volume (Un)
+            </button>
+        </div>
+
+        <div class="mb-6">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Filtrar por Vendedor / RCA:</p>
+            <div class="flex gap-2 overflow-x-auto pb-2" id="filters-container">
+            </div>
+        </div>
+
+        <div id="view-todos" class="transition-opacity duration-300">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="glass-card border-l-4 border-blue-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-slate-500 mb-1" id="kpi-base-title">Base CLI</p>
+                            <h3 class="text-2xl font-bold text-slate-800" id="kpi-base">0</h3>
+                        </div>
+                        <div class="p-3 bg-blue-100 rounded-full text-blue-600">
+                            <i class="fas fa-database text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card border-l-4 border-indigo-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-slate-500 mb-1" id="kpi-meta-title">Meta Total (85%)</p>
+                            <h3 class="text-2xl font-bold text-slate-800" id="kpi-meta">0</h3>
+                        </div>
+                        <div class="p-3 bg-indigo-100 rounded-full text-indigo-600">
+                            <i class="fas fa-bullseye text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card border-l-4 border-emerald-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-slate-500 mb-1" id="kpi-realizado-title">Realizado</p>
+                            <h3 class="text-2xl font-bold text-slate-800" id="kpi-realizado">0</h3>
+                        </div>
+                        <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
+                            <i class="fas fa-chart-line text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card border-l-4" id="kpi-percent-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-slate-500 mb-1">Atingimento Geral</p>
+                            <h3 class="text-2xl font-bold text-slate-800" id="kpi-percent">0%</h3>
+                        </div>
+                        <div class="p-3 bg-slate-100 rounded-full text-slate-600" id="kpi-percent-icon">
+                            <i class="fas fa-percent text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="glass-card lg:col-span-2">
+                    <h3 class="text-lg font-semibold mb-4 text-slate-700" id="chart-title">Comparativo (Meta vs Realizado)</h3>
+                    <div class="relative h-96 w-full">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card lg:col-span-1 flex flex-col">
+                    <h3 class="text-lg font-semibold mb-4 text-slate-700">Ranking: % de Atingimento</h3>
+                    <div class="flex-grow flex flex-col gap-5 justify-center mt-2 overflow-y-auto" id="ranking-container">
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card overflow-hidden">
+                <h3 class="text-lg font-semibold mb-4 text-slate-700">Detalhamento de Vendas</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-600 text-sm uppercase tracking-wider border-b border-slate-200">
+                                <th class="p-4 font-semibold">RCA</th>
+                                <th class="p-4 font-semibold">Cliente / Vendedor</th>
+                                <th class="p-4 font-semibold text-right" id="table-col-base">Base CLI</th>
+                                <th class="p-4 font-semibold text-right">Meta (85%)</th>
+                                <th class="p-4 font-semibold text-right">Realizado</th>
+                                <th class="p-4 font-semibold text-center">% Atingido</th>
+                                <th class="p-4 font-semibold text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="text-sm">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-individual" class="hidden transition-opacity duration-300">
+            <div class="mb-6 flex flex-wrap justify-between items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-blue-100">
+                <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                    <span class="bg-blue-100 text-blue-600 p-2 rounded-lg"><i class="fas fa-user-tie"></i></span>
+                    <span id="ind-vendedor-nome">Vendedor: ---</span>
+                </h2>
+                <button onclick="setFiltroVendedor('Todos')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-colors">
+                    <i class="fas fa-arrow-left"></i> Voltar para Todos
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="glass-card flex flex-col gap-6 border-t-4 border-blue-500">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 class="text-lg font-bold text-blue-600 flex items-center"><i class="fas fa-users mr-2"></i> Positivação</h3>
+                        <span id="ind-pos-status" class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100">--</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="p-4 bg-slate-50 rounded-lg"><p class="text-[10px] text-slate-400 uppercase font-bold">BASE CLI</p><p class="font-bold text-slate-700" id="ind-pos-base">0</p></div>
+                        <div class="p-4 bg-indigo-50 rounded-lg"><p class="text-[10px] text-indigo-400 uppercase font-bold">Meta</p><p class="font-bold text-indigo-700" id="ind-pos-meta">0</p></div>
+                        <div class="p-4 bg-emerald-50 rounded-lg"><p class="text-[10px] text-emerald-500 uppercase font-bold">Realizado</p><p class="font-bold text-emerald-700" id="ind-pos-realizado">0</p></div>
+                        <div class="p-4 bg-blue-50 rounded-lg"><p class="text-[10px] text-blue-500 uppercase font-bold">% Ating.</p><p class="font-bold text-blue-700" id="ind-pos-pct">0%</p></div>
+                    </div>
+                    <div class="relative h-48 w-full"><canvas id="indChartPos"></canvas></div>
+                </div>
+
+                <div class="glass-card flex flex-col gap-6 border-t-4 border-emerald-500">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 class="text-lg font-bold text-emerald-600 flex items-center"><i class="fas fa-money-bill-wave mr-2"></i> Faturamento</h3>
+                        <span id="ind-fat-status" class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100">--</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="p-4 bg-slate-50 rounded-lg"><p class="text-[10px] text-slate-400 uppercase font-bold">Ano 2025</p><p class="font-bold text-slate-700" id="ind-fat-base">R$ 0</p></div>
+                        <div class="p-4 bg-indigo-50 rounded-lg"><p class="text-[10px] text-indigo-400 uppercase font-bold">Meta</p><p class="font-bold text-indigo-700" id="ind-fat-meta">R$ 0</p></div>
+                        <div class="p-4 bg-emerald-50 rounded-lg"><p class="text-[10px] text-emerald-500 uppercase font-bold">Realizado</p><p class="font-bold text-emerald-700" id="ind-fat-realizado">R$ 0</p></div>
+                        <div class="p-4 bg-emerald-50 rounded-lg"><p class="text-[10px] text-emerald-600 uppercase font-bold">% Ating.</p><p class="font-bold text-emerald-700" id="ind-fat-pct">0%</p></div>
+                    </div>
+                    <div class="relative h-48 w-full"><canvas id="indChartFat"></canvas></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 mb-8">
+                <div class="glass-card flex flex-col gap-6 border-t-4 border-amber-500 max-w-4xl mx-auto w-full">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 class="text-lg font-bold text-amber-600 flex items-center"><i class="fas fa-box mr-2"></i> Volume</h3>
+                        <span id="ind-vol-status" class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100">--</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                        <div class="p-4 bg-slate-50 rounded-lg"><p class="text-[10px] text-slate-400 uppercase font-bold">Ano 2025 (UN)</p><p class="font-bold text-slate-700" id="ind-vol-base">0</p></div>
+                        <div class="p-4 bg-indigo-50 rounded-lg"><p class="text-[10px] text-indigo-400 uppercase font-bold">Meta</p><p class="font-bold text-indigo-700" id="ind-vol-meta">0</p></div>
+                        <div class="p-4 bg-emerald-50 rounded-lg"><p class="text-[10px] text-emerald-500 uppercase font-bold">Realizado</p><p class="font-bold text-emerald-700" id="ind-vol-realizado">0</p></div>
+                        <div class="p-4 bg-amber-50 rounded-lg"><p class="text-[10px] text-amber-600 uppercase font-bold">% Ating.</p><p class="font-bold text-amber-700" id="ind-vol-pct">0%</p></div>
+                    </div>
+                    <div class="relative h-64 w-full"><canvas id="indChartVol"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <script>
+        Chart.register(ChartDataLabels);
+
+        const dadosPositivacao = [
+            { rca: "303", cliente: "NOVO HORIZONTE", base: 106, meta: 90, realizado: 22, atingido: 0.2444 },
+            { rca: "317", cliente: "JARDIM", base: 76, meta: 65, realizado: 12, atingido: 0.1846 },
+            { rca: "307", cliente: "PACOVAL", base: 97, meta: 82, realizado: 8, atingido: 0.0976 },
+            { rca: "302", cliente: "BRASIL NOVO", base: 138, meta: 117, realizado: 27, atingido: 0.2308 },
+            { rca: "306", cliente: "REDE UNIDOS", base: 29, meta: 25, realizado: 4, atingido: 0.1600 },
+            { rca: "315", cliente: "P SOCORRO", base: 76, meta: 65, realizado: 11, atingido: 0.1692 }
+        ];
+
+        const dadosFaturamento = [
+            { rca: "303", cliente: "NOVO HORIZONTE", base: 101176.55, meta: 123435.39, realizado: 13712.93, atingido: 0.1111 },
+            { rca: "317", cliente: "JARDIM", base: 90486.33, meta: 110393.32, realizado: 6724.25, atingido: 0.0609 },
+            { rca: "307", cliente: "PACOVAL", base: 66194.26, meta: 80757.00, realizado: 7631.22, atingido: 0.0945 },
+            { rca: "302", cliente: "BRASIL NOVO", base: 216348.59, meta: 263945.28, realizado: 19105.51, atingido: 0.0724 },
+            { rca: "306", cliente: "REDE UNIDOS", base: 184113.38, meta: 224618.32, realizado: 10415.13, atingido: 0.0464 },
+            { rca: "315", cliente: "P SOCORRO", base: 78292.93, meta: 95517.37, realizado: 3485.55, atingido: 0.0365 }
+        ];
+
+        const dadosVolume = [
+            { rca: "303", cliente: "NOVO HORIZONTE", base: 20447, meta: 24945.34, realizado: 139, atingido: 139 / 24945.34 },
+            { rca: "317", cliente: "JARDIM", base: 20237, meta: 24689.14, realizado: 51, atingido: 51 / 24689.14 },
+            { rca: "307", cliente: "PACOVAL", base: 12499, meta: 15248.78, realizado: 65, atingido: 65 / 15248.78 },
+            { rca: "302", cliente: "BRASIL NOVO", base: 41737, meta: 50919.14, realizado: 232, atingido: 232 / 50919.14 },
+            { rca: "306", cliente: "REDE UNIDOS", base: 23350, meta: 28487, realizado: 62, atingido: 62 / 28487 },
+            { rca: "315", cliente: "P SOCORRO", base: 20051, meta: 24462.22, realizado: 41, atingido: 41 / 24462.22 }
+        ];
+
+        let abaAtiva = 'positivacao'; 
+        let vendedorSelecionado = 'Todos'; 
+        let graficoPrincipal = null; 
+        let chartIndPos = null;
+        let chartIndFat = null;
+        let chartIndVol = null;
+
+        const formatarInteiro = (valor) => new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(Math.round(valor));
+        const formatarMoeda = (valor) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+        const formatarPercentual = (valor) => (valor * 100).toFixed(2).replace('.', ',') + '%';
+
+        function setTab(aba) {
+            abaAtiva = aba;
+            const tabPos = document.getElementById('tab-positivacao');
+            const tabFat = document.getElementById('tab-faturamento');
+            const tabVol = document.getElementById('tab-volume');
+            
+            // Reset styles
+            [tabPos, tabFat, tabVol].forEach(el => {
+                el.className = "px-4 py-2 font-bold text-slate-500 hover:text-slate-800 focus:outline-none transition-colors border-b-2 border-transparent";
+            });
+
+            if (aba === 'positivacao') {
+                tabPos.className = "px-4 py-2 font-bold text-blue-600 border-b-2 border-blue-600 focus:outline-none transition-colors";
+                document.getElementById('main-title').innerText = "Visão Geral: Positivação de Clientes";
+            } else if (aba === 'faturamento') {
+                tabFat.className = "px-4 py-2 font-bold text-emerald-600 border-b-2 border-emerald-600 focus:outline-none transition-colors";
+                document.getElementById('main-title').innerText = "Visão Geral: Faturamento Financeiro";
+            } else {
+                tabVol.className = "px-4 py-2 font-bold text-amber-600 border-b-2 border-amber-600 focus:outline-none transition-colors";
+                document.getElementById('main-title').innerText = "Visão Geral: Volume de Vendas";
+            }
+            renderizarFiltros();
+            renderizarDashboard();
+        }
+
+        function setFiltroVendedor(rca) {
+            vendedorSelecionado = rca;
+            renderizarFiltros();
+            renderizarDashboard();
+        }
+
+        function renderizarFiltros() {
+            const container = document.getElementById('filters-container');
+            container.innerHTML = '';
+            const datasetBase = abaAtiva === 'positivacao' ? dadosPositivacao : (abaAtiva === 'faturamento' ? dadosFaturamento : dadosVolume);
+
+            const btnTodos = document.createElement('button');
+            btnTodos.innerText = "Ver Todos";
+            btnTodos.className = `whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold border shadow-sm transition-colors ${vendedorSelecionado === 'Todos' ? 'filter-btn-active' : 'filter-btn-inactive hover:bg-slate-50'}`;
+            btnTodos.onclick = () => setFiltroVendedor('Todos');
+            container.appendChild(btnTodos);
+
+            datasetBase.forEach(vendedor => {
+                const btn = document.createElement('button');
+                btn.innerText = `${vendedor.rca} - ${vendedor.cliente}`;
+                btn.className = `whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-semibold border shadow-sm transition-colors ${vendedorSelecionado === vendedor.rca ? 'filter-btn-active' : 'filter-btn-inactive hover:bg-slate-50'}`;
+                btn.onclick = () => setFiltroVendedor(vendedor.rca);
+                container.appendChild(btn);
+            });
+        }
+
+        function renderizarDashboard() {
+            const viewTodos = document.getElementById('view-todos');
+            const viewIndividual = document.getElementById('view-individual');
+            const tabsContainer = document.getElementById('tabs-container');
+            const mainTitle = document.getElementById('main-title');
+
+            if (vendedorSelecionado === 'Todos') {
+                tabsContainer.style.display = 'flex';
+                viewTodos.classList.remove('hidden');
+                viewIndividual.classList.add('hidden');
+                mainTitle.innerText = abaAtiva === 'positivacao' ? "Visão Geral: Positivação de Clientes" : (abaAtiva === 'faturamento' ? "Visão Geral: Faturamento Financeiro" : "Visão Geral: Volume de Vendas");
+                renderizarViewTodos();
+            } else {
+                tabsContainer.style.display = 'none';
+                viewTodos.classList.add('hidden');
+                viewIndividual.classList.remove('hidden');
+                mainTitle.innerText = "Análise Detalhada do Vendedor";
+                renderizarViewIndividual(vendedorSelecionado);
+            }
+        }
+
+        function renderizarViewTodos() {
+            const datasetOriginal = abaAtiva === 'positivacao' ? dadosPositivacao : (abaAtiva === 'faturamento' ? dadosFaturamento : dadosVolume);
+            const formatadorValor = abaAtiva === 'faturamento' ? formatarMoeda : formatarInteiro;
+            
+            document.getElementById('kpi-base-title').innerText = abaAtiva === 'faturamento' ? 'Ano 2025' : (abaAtiva === 'volume' ? 'Volume 2025' : 'Base CLI');
+            document.getElementById('table-col-base').innerText = abaAtiva === 'faturamento' ? 'Ano 2025' : (abaAtiva === 'volume' ? 'Volume 2025' : 'Base CLI');
+            document.getElementById('chart-title').innerText = abaAtiva === 'positivacao' ? 'Comparativo: Positivação de Clientes' : (abaAtiva === 'faturamento' ? 'Comparativo: Faturamento Financeiro' : 'Comparativo: Volume de Vendas');
+
+            const totalBase = datasetOriginal.reduce((acc, curr) => acc + curr.base, 0);
+            const totalMeta = datasetOriginal.reduce((acc, curr) => acc + curr.meta, 0);
+            const totalRealizado = datasetOriginal.reduce((acc, curr) => acc + curr.realizado, 0);
+            const mediaAtingido = totalMeta > 0 ? (totalRealizado / totalMeta) : 0; 
+
+            document.getElementById('kpi-base').innerText = formatadorValor(totalBase);
+            document.getElementById('kpi-meta').innerText = formatadorValor(totalMeta);
+            document.getElementById('kpi-realizado').innerText = formatadorValor(totalRealizado);
+            document.getElementById('kpi-percent').innerText = formatarPercentual(mediaAtingido);
+
+            const percentCard = document.getElementById('kpi-percent-card');
+            const percentIcon = document.getElementById('kpi-percent-icon');
+            percentCard.className = 'glass-card border-l-4'; 
+            percentIcon.className = 'p-3 rounded-full text-xl flex items-center justify-center w-12 h-12';
+            
+            const limiteAviso = abaAtiva === 'positivacao' ? 0.20 : 0.40;
+            const limiteSucesso = abaAtiva === 'positivacao' ? 0.23 : 0.50;
+
+            if (mediaAtingido < limiteAviso) {
+                percentCard.classList.add('border-red-500'); percentIcon.classList.add('bg-red-100', 'text-red-600');
+            } else if (mediaAtingido >= limiteSucesso) {
+                percentCard.classList.add('border-emerald-500'); percentIcon.classList.add('bg-emerald-100', 'text-emerald-600');
+            } else {
+                percentCard.classList.add('border-yellow-500'); percentIcon.classList.add('bg-yellow-100', 'text-yellow-600');
+            }
+            percentIcon.innerHTML = '<i class="fas fa-percent"></i>';
+
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            datasetOriginal.forEach((linha) => {
+                let corBadge = 'bg-yellow-100 text-yellow-800';
+                let icone = 'fa-minus';
+                if (linha.atingido < limiteAviso) { corBadge = 'bg-red-100 text-red-800'; icone = 'fa-arrow-down'; }
+                else if (linha.atingido >= limiteSucesso) { corBadge = 'bg-emerald-100 text-emerald-800'; icone = 'fa-arrow-up'; }
+
+                tableBody.innerHTML += `
+                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                        <td class="p-4 text-slate-500">${linha.rca}</td>
+                        <td class="p-4 font-medium text-slate-800">${linha.cliente}</td>
+                        <td class="p-4 text-right">${formatadorValor(linha.base)}</td>
+                        <td class="p-4 text-right text-indigo-600 font-medium">${formatadorValor(linha.meta)}</td>
+                        <td class="p-4 text-right text-emerald-600 font-bold">${formatadorValor(linha.realizado)}</td>
+                        <td class="p-4 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${corBadge}">${formatarPercentual(linha.atingido)}</span></td>
+                        <td class="p-4 text-center"><i class="fas ${icone} ${corBadge.replace('bg-', 'text-').split(' ')[1]}"></i></td>
+                    </tr>
+                `;
+            });
+
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            if (graficoPrincipal) graficoPrincipal.destroy();
+            const corBaseMeta = abaAtiva === 'positivacao' ? 'rgba(99, 102, 241, 0.9)' : (abaAtiva === 'faturamento' ? 'rgba(59, 130, 246, 0.9)' : 'rgba(245, 158, 11, 0.9)'); 
+
+            graficoPrincipal = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: datasetOriginal.map(d => d.cliente), 
+                    datasets: [
+                        { label: 'Meta', data: datasetOriginal.map(d => d.meta), backgroundColor: corBaseMeta, borderRadius: 4 },
+                        { label: 'Realizado', data: datasetOriginal.map(d => d.realizado), backgroundColor: 'rgba(16, 185, 129, 0.9)', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    layout: { padding: { top: 25 } },
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        datalabels: {
+                            anchor: 'end', align: 'top', color: '#475569',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: function(value) { return formatadorValor(value); }
+                        },
+                        tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': ' + formatadorValor(ctx.raw) } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { callback: (val) => formatadorValor(val) }, suggestedMax: Math.max(...datasetOriginal.map(d => d.meta)) * 1.15 }
+                    }
+                }
+            });
+
+            const rankingContainer = document.getElementById('ranking-container');
+            rankingContainer.innerHTML = '';
+            const dadosOrdenados = [...datasetOriginal].sort((a, b) => b.atingido - a.atingido);
+            const maxPercent = Math.max(...dadosOrdenados.map(d => d.atingido));
+
+            dadosOrdenados.forEach((linha, index) => {
+                let medalha = ''; let corBarra = 'bg-blue-400';
+                if (index === 0) { medalha = '🥇'; corBarra = 'bg-emerald-500'; }
+                else if (index === 1) { medalha = '🥈'; corBarra = 'bg-emerald-400'; }
+                else if (index === 2) { medalha = '🥉'; corBarra = 'bg-emerald-300'; }
+                else { medalha = `<span class="text-xs text-slate-400">${index + 1}º</span>`; }
+                const visualWidth = (linha.atingido / (maxPercent || 1)) * 100;
+                rankingContainer.innerHTML += `
+                    <div class="flex flex-col group transition-opacity duration-300">
+                        <div class="flex justify-between items-center mb-1">
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 text-center font-bold">${medalha}</span>
+                                <span class="text-sm font-medium text-slate-700">${linha.cliente}</span>
+                            </div>
+                            <span class="text-sm font-bold text-slate-900">${formatarPercentual(linha.atingido)}</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
+                            <div class="${corBarra} h-2 rounded-full transition-all duration-1000 ease-out" style="width: ${Math.min(visualWidth, 100)}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderizarViewIndividual(rca) {
+            const dPos = dadosPositivacao.find(d => d.rca === rca);
+            const dFat = dadosFaturamento.find(d => d.rca === rca);
+            const dVol = dadosVolume.find(d => d.rca === rca);
+            if(!dPos || !dFat || !dVol) return;
+
+            document.getElementById('ind-vendedor-nome').innerText = `${dPos.rca} - ${dPos.cliente}`;
+            const getStatusBadge = (atingido, isPos, isVol) => {
+                const limitAviso = isPos ? 0.20 : (isVol ? 0.20 : 0.40);
+                const limitSucesso = isPos ? 0.23 : (isVol ? 0.25 : 0.50);
+                if (atingido < limitAviso) return `<span class="text-red-700 bg-red-100 px-3 py-1 rounded-full text-xs font-bold"><i class="fas fa-arrow-down mr-1"></i>Atenção</span>`;
+                if (atingido >= limitSucesso) return `<span class="text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full text-xs font-bold"><i class="fas fa-star mr-1"></i>Excelente</span>`;
+                return `<span class="text-yellow-700 bg-yellow-100 px-3 py-1 rounded-full text-xs font-bold"><i class="fas fa-minus mr-1"></i>Na Média</span>`;
+            };
+
+            document.getElementById('ind-pos-base').innerText = formatarInteiro(dPos.base);
+            document.getElementById('ind-pos-meta').innerText = formatarInteiro(dPos.meta);
+            document.getElementById('ind-pos-realizado').innerText = formatarInteiro(dPos.realizado);
+            document.getElementById('ind-pos-pct').innerText = formatarPercentual(dPos.atingido);
+            document.getElementById('ind-pos-status').innerHTML = getStatusBadge(dPos.atingido, true, false);
+
+            document.getElementById('ind-fat-base').innerText = formatarMoeda(dFat.base);
+            document.getElementById('ind-fat-meta').innerText = formatarMoeda(dFat.meta);
+            document.getElementById('ind-fat-realizado').innerText = formatarMoeda(dFat.realizado);
+            document.getElementById('ind-fat-pct').innerText = formatarPercentual(dFat.atingido);
+            document.getElementById('ind-fat-status').innerHTML = getStatusBadge(dFat.atingido, false, false);
+
+            document.getElementById('ind-vol-base').innerText = formatarInteiro(dVol.base);
+            document.getElementById('ind-vol-meta').innerText = formatarInteiro(dVol.meta);
+            document.getElementById('ind-vol-realizado').innerText = formatarInteiro(dVol.realizado);
+            document.getElementById('ind-vol-pct').innerText = formatarPercentual(dVol.atingido);
+            document.getElementById('ind-vol-status').innerHTML = getStatusBadge(dVol.atingido, false, true);
+
+            if (chartIndPos) chartIndPos.destroy();
+            if (chartIndFat) chartIndFat.destroy();
+            if (chartIndVol) chartIndVol.destroy();
+
+            chartIndPos = criarGraficoIndividual('indChartPos', 'Positivação', dPos.meta, dPos.realizado, formatarInteiro, 'rgba(99, 102, 241, 0.9)');
+            chartIndFat = criarGraficoIndividual('indChartFat', 'Faturamento', dFat.meta, dFat.realizado, formatarMoeda, 'rgba(59, 130, 246, 0.9)');
+            chartIndVol = criarGraficoIndividual('indChartVol', 'Volume', dVol.meta, dVol.realizado, formatarInteiro, 'rgba(245, 158, 11, 0.9)');
+        }
+
+        function criarGraficoIndividual(canvasId, tituloLabel, valorMeta, valorRealizado, formatador, corMeta) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            const pctAtingido = valorMeta > 0 ? (valorRealizado / valorMeta) : 0;
+            const pctFormatado = formatarPercentual(pctAtingido);
+            return new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [tituloLabel],
+                    datasets: [
+                        { label: 'Meta', data: [valorMeta], backgroundColor: corMeta, borderRadius: 6, barPercentage: 0.9, categoryPercentage: 0.7 },
+                        { label: 'Realizado', data: [valorRealizado], backgroundColor: 'rgba(16, 185, 129, 0.9)', borderRadius: 6, barPercentage: 0.9, categoryPercentage: 0.7 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    layout: { padding: { top: 30 } },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { weight: 'bold' } } },
+                        tooltip: { callbacks: { label: (context) => context.dataset.label + ': ' + formatador(context.raw) } },
+                        datalabels: {
+                            anchor: 'end', align: 'top', color: '#1e293b', font: { weight: 'bold', size: 10 },
+                            formatter: (value, context) => {
+                                let label = formatador(value);
+                                if(context.datasetIndex === 1) label += `\n(${pctFormatado})`;
+                                return label;
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { callback: (val) => formatador(val) }, suggestedMax: Math.max(valorMeta, valorRealizado) * 1.25 }
+                    }
+                }
+            });
+        }
+        setTab('positivacao');
+    </script>
+</body>
+</html>
