@@ -33,11 +33,14 @@
         <div class="mb-4 flex justify-between items-center flex-wrap gap-4">
             <div class="flex items-center gap-6">
                 <div class="bg-slate-800 p-3 rounded-xl shadow-lg">
-                    <img src="6B804A82-1315-467F-9EC5-82F02AAFC79E.PNG" alt="Logo Distribuidora Minas Mais" class="h-12 w-auto object-contain">
+                    <!-- Nome da logo do topo padronizado para evitar erros -->
+                    <img src="logo_minas_mais.png" alt="Logo Distribuidora Minas Mais" class="h-12 w-auto object-contain" onerror="this.src='https://placehold.co/180x50/1e293b/ffffff?text=Minas+Mais'">
                 </div>
                 <div>
                     <h1 class="text-3xl font-bold text-slate-900" id="main-title">Visão Geral de Vendas</h1>
-                    <p class="text-sm text-slate-500 mt-1">Acompanhamento de Metas, Realizado e Ranking de Vendedores</p>
+                    <div id="last-update" class="text-xs text-slate-400 mt-1 flex items-center gap-2">
+                        <i class="fas fa-clock"></i> Última atualização: 06/06/2026
+                    </div>
                 </div>
             </div>
             <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition-colors flex items-center gap-2">
@@ -130,17 +133,32 @@
             </div>
 
             <div class="glass-card overflow-hidden">
-                <h3 class="text-lg font-semibold mb-4 text-slate-700">Detalhamento de Vendas</h3>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-slate-700">Detalhamento de Vendas</h3>
+                    <input type="text" id="search-box" onkeyup="renderizarDashboard()" placeholder="Pesquisar cliente ou RCA..." class="w-64 px-4 py-2 text-sm rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-50 text-slate-600 text-sm uppercase tracking-wider border-b border-slate-200">
-                                <th class="p-4 font-semibold">RCA</th>
-                                <th class="p-4 font-semibold">Cliente / Vendedor</th>
-                                <th class="p-4 font-semibold text-right" id="table-col-base">Base CLI</th>
-                                <th class="p-4 font-semibold text-right">Meta (85%)</th>
-                                <th class="p-4 font-semibold text-right">Realizado</th>
-                                <th class="p-4 font-semibold text-center">% Atingido</th>
+                            <tr class="bg-slate-50 text-slate-600 text-sm uppercase tracking-wider border-b border-slate-200 select-none">
+                                <th class="p-4 font-semibold cursor-pointer hover:bg-slate-100 transition-colors group" onclick="ordenarTabela('rca')">
+                                    <div class="flex items-center gap-1">RCA <i class="fas fa-sort text-slate-300 sort-icon" id="sort-rca"></i></div>
+                                </th>
+                                <th class="p-4 font-semibold cursor-pointer hover:bg-slate-100 transition-colors group" onclick="ordenarTabela('cliente')">
+                                    <div class="flex items-center gap-1">Cliente / Vendedor <i class="fas fa-sort text-slate-300 sort-icon" id="sort-cliente"></i></div>
+                                </th>
+                                <th class="p-4 font-semibold cursor-pointer hover:bg-slate-100 transition-colors group text-right" onclick="ordenarTabela('base')">
+                                    <div class="flex items-center justify-end gap-1"><span id="table-col-base">Base CLI</span> <i class="fas fa-sort text-slate-300 sort-icon" id="sort-base"></i></div>
+                                </th>
+                                <th class="p-4 font-semibold cursor-pointer hover:bg-slate-100 transition-colors group text-right" onclick="ordenarTabela('meta')">
+                                    <div class="flex items-center justify-end gap-1">Meta (85%) <i class="fas fa-sort text-slate-300 sort-icon" id="sort-meta"></i></div>
+                                </th>
+                                <th class="p-4 font-semibold cursor-pointer hover:bg-slate-100 transition-colors group text-right" onclick="ordenarTabela('realizado')">
+                                    <div class="flex items-center justify-end gap-1">Realizado <i class="fas fa-sort text-slate-300 sort-icon" id="sort-realizado"></i></div>
+                                </th>
+                                <th class="p-4 font-semibold cursor-pointer hover:bg-slate-100 transition-colors group text-center" onclick="ordenarTabela('atingido')">
+                                    <div class="flex items-center justify-center gap-1">% Atingido <i class="fas fa-sort text-slate-300 sort-icon" id="sort-atingido"></i></div>
+                                </th>
                                 <th class="p-4 font-semibold text-center">Status</th>
                             </tr>
                         </thead>
@@ -208,9 +226,52 @@
                 </div>
             </div>
         </div>
+
+        <!-- Rodapé elegante com as logos das indústrias parceiras de forma uniforme -->
+        <div class="mt-12 glass-card border-t-4 border-slate-700">
+            <div class="flex items-center justify-between mb-6 border-b border-slate-100 pb-3">
+                <h3 class="text-lg font-bold text-slate-700 flex items-center gap-2">
+                    <i class="fas fa-handshake text-blue-600"></i>
+                    Indústrias Representadas
+                </h3>
+                <span class="text-xs text-slate-400 uppercase tracking-wider font-bold">Parceiros de Confiança</span>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-6 items-center justify-center">
+                <!-- Nívea -->
+                <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:-translate-y-1 hover:shadow-lg hover:border-blue-400 transition-all duration-300 flex items-center justify-center h-24 group">
+                    <img src="nivea.webp" alt="Nivea" class="max-h-16 max-w-full object-contain group-hover:scale-110 transition-transform duration-300" onerror="this.src='https://placehold.co/120x60/ffffff/0033a0?text=NIVEA'">
+                </div>
+                <!-- M. Dias Branco -->
+                <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:-translate-y-1 hover:shadow-lg hover:border-blue-400 transition-all duration-300 flex items-center justify-center h-24 group">
+                    <img src="m_dias_branco.png" alt="M. Dias Branco" class="max-h-16 max-w-full object-contain group-hover:scale-110 transition-transform duration-300" onerror="this.src='https://placehold.co/120x60/ffffff/004b87?text=M.+Dias+Branco'">
+                </div>
+                <!-- Fante -->
+                <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:-translate-y-1 hover:shadow-lg hover:border-blue-400 transition-all duration-300 flex items-center justify-center h-24 group">
+                    <img src="fante.png" alt="Fante" class="max-h-16 max-w-full object-contain group-hover:scale-110 transition-transform duration-300" onerror="this.src='https://placehold.co/120x60/ffffff/4a001a?text=Fante'">
+                </div>
+                <!-- Superfoods -->
+                <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:-translate-y-1 hover:shadow-lg hover:border-blue-400 transition-all duration-300 flex items-center justify-center h-24 group">
+                    <img src="superfoods.png" alt="Superfoods" class="max-h-16 max-w-full object-contain group-hover:scale-110 transition-transform duration-300" onerror="this.src='https://placehold.co/120x60/ffffff/eaaa00?text=Superfoods'">
+                </div>
+                <!-- Santher -->
+                <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:-translate-y-1 hover:shadow-lg hover:border-blue-400 transition-all duration-300 flex items-center justify-center h-24 group">
+                    <img src="santher.png" alt="Santher" class="max-h-16 max-w-full object-contain group-hover:scale-110 transition-transform duration-300" onerror="this.src='https://placehold.co/120x60/ffffff/112e51?text=Santher'">
+                </div>
+                <!-- SC Johnson -->
+                <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:-translate-y-1 hover:shadow-lg hover:border-blue-400 transition-all duration-300 flex items-center justify-center h-24 group">
+                    <img src="sc_johnson.png" alt="SC Johnson" class="max-h-16 max-w-full object-contain group-hover:scale-110 transition-transform duration-300" onerror="this.src='https://placehold.co/120x60/ffffff/000000?text=SC+Johnson'">
+                </div>
+                <!-- Nutrimental (Fundo escuro para a logo branca brilhar perfeitamente) -->
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-3 shadow-sm hover:-translate-y-1 hover:shadow-lg hover:border-yellow-400 transition-all duration-300 flex items-center justify-center h-24 group">
+                    <img src="nutrimental.png" alt="Nutrimental" class="max-h-16 max-w-full object-contain group-hover:scale-110 transition-transform duration-300" onerror="this.src='https://placehold.co/120x60/1e293b/ffffff?text=Nutrimental'">
+                </div>
+            </div>
+        </div>
+
     </div>
 
-        <script>
+    <script>
         Chart.register(ChartDataLabels);
 
         const dadosPositivacao = [
@@ -246,6 +307,7 @@
         let chartIndPos = null;
         let chartIndFat = null;
         let chartIndVol = null;
+        let ordenacaoAtual = { coluna: 'atingido', direcao: 'desc' }; // Estado da ordenação inicial por % atingido decrescente
 
         const formatarInteiro = (valor) => new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(Math.round(valor));
         const formatarMoeda = (valor) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
@@ -279,6 +341,18 @@
         function setFiltroVendedor(rca) {
             vendedorSelecionado = rca;
             renderizarFiltros();
+            renderizarDashboard();
+        }
+
+        function ordenarTabela(coluna) {
+            if (ordenacaoAtual.coluna === coluna) {
+                // Inverte a direção se clicar na mesma coluna
+                ordenacaoAtual.direcao = ordenacaoAtual.direcao === 'asc' ? 'desc' : 'asc';
+            } else {
+                // Nova coluna, padrão é decrescente (maior para menor)
+                ordenacaoAtual.coluna = coluna;
+                ordenacaoAtual.direcao = 'desc';
+            }
             renderizarDashboard();
         }
 
@@ -325,15 +399,20 @@
 
         function renderizarViewTodos() {
             const datasetOriginal = abaAtiva === 'positivacao' ? dadosPositivacao : (abaAtiva === 'faturamento' ? dadosFaturamento : dadosVolume);
+            
+            // Search filter implementation
+            const searchTerm = document.getElementById('search-box')?.value.toLowerCase() || '';
+            const dataset = datasetOriginal.filter(d => d.cliente.toLowerCase().includes(searchTerm) || d.rca.includes(searchTerm));
+
             const formatadorValor = abaAtiva === 'faturamento' ? formatarMoeda : formatarInteiro;
             
             document.getElementById('kpi-base-title').innerText = abaAtiva === 'faturamento' ? 'Ano 2025' : (abaAtiva === 'volume' ? 'Volume 2025' : 'Base CLI');
             document.getElementById('table-col-base').innerText = abaAtiva === 'faturamento' ? 'Ano 2025' : (abaAtiva === 'volume' ? 'Volume 2025' : 'Base CLI');
             document.getElementById('chart-title').innerText = abaAtiva === 'positivacao' ? 'Comparativo: Positivação de Clientes' : (abaAtiva === 'faturamento' ? 'Comparativo: Faturamento Financeiro' : 'Comparativo: Volume de Vendas');
 
-            const totalBase = datasetOriginal.reduce((acc, curr) => acc + curr.base, 0);
-            const totalMeta = datasetOriginal.reduce((acc, curr) => acc + curr.meta, 0);
-            const totalRealizado = datasetOriginal.reduce((acc, curr) => acc + curr.realizado, 0);
+            const totalBase = dataset.reduce((acc, curr) => acc + curr.base, 0);
+            const totalMeta = dataset.reduce((acc, curr) => acc + curr.meta, 0);
+            const totalRealizado = dataset.reduce((acc, curr) => acc + curr.realizado, 0);
             const mediaAtingido = totalMeta > 0 ? (totalRealizado / totalMeta) : 0; 
 
             document.getElementById('kpi-base').innerText = formatadorValor(totalBase);
@@ -358,9 +437,34 @@
             }
             percentIcon.innerHTML = '<i class="fas fa-percent"></i>';
 
+            // --- Lógica de Ordenação da Tabela ---
+            let datasetTabela = [...dataset];
+            datasetTabela.sort((a, b) => {
+                let valA = a[ordenacaoAtual.coluna];
+                let valB = b[ordenacaoAtual.coluna];
+                
+                // Tratar strings para não ser case-sensitive
+                if (typeof valA === 'string') valA = valA.toLowerCase();
+                if (typeof valB === 'string') valB = valB.toLowerCase();
+                
+                if (valA < valB) return ordenacaoAtual.direcao === 'asc' ? -1 : 1;
+                if (valA > valB) return ordenacaoAtual.direcao === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            // Atualiza os ícones de indicação de ordenação ativa no cabeçalho
+            document.querySelectorAll('.sort-icon').forEach(icon => {
+                icon.className = 'fas fa-sort text-slate-300 sort-icon';
+            });
+            const activeIcon = document.getElementById(`sort-${ordenacaoAtual.coluna}`);
+            if (activeIcon) {
+                activeIcon.className = `fas fa-sort-${ordenacaoAtual.direcao === 'asc' ? 'up' : 'down'} text-blue-600 sort-icon`;
+            }
+            // -------------------------------------
+
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
-            datasetOriginal.forEach((linha) => {
+            datasetTabela.forEach((linha) => {
                 let corBadge = 'bg-yellow-100 text-yellow-800';
                 let icone = 'fa-minus';
                 if (linha.atingido < limiteAviso) { corBadge = 'bg-red-100 text-red-800'; icone = 'fa-arrow-down'; }
@@ -386,10 +490,10 @@
             graficoPrincipal = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
-                    labels: datasetOriginal.map(d => d.cliente), 
+                    labels: dataset.map(d => d.cliente), 
                     datasets: [
-                        { label: 'Meta', data: datasetOriginal.map(d => d.meta), backgroundColor: corBaseMeta, borderRadius: 4 },
-                        { label: 'Realizado', data: datasetOriginal.map(d => d.realizado), backgroundColor: 'rgba(16, 185, 129, 0.9)', borderRadius: 4 }
+                        { label: 'Meta', data: dataset.map(d => d.meta), backgroundColor: corBaseMeta, borderRadius: 4 },
+                        { label: 'Realizado', data: dataset.map(d => d.realizado), backgroundColor: 'rgba(16, 185, 129, 0.9)', borderRadius: 4 }
                     ]
                 },
                 options: {
@@ -405,14 +509,14 @@
                         tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': ' + formatadorValor(ctx.raw) } }
                     },
                     scales: {
-                        y: { beginAtZero: true, ticks: { callback: (val) => formatadorValor(val) }, suggestedMax: Math.max(...datasetOriginal.map(d => d.meta)) * 1.15 }
+                        y: { beginAtZero: true, ticks: { callback: (val) => formatadorValor(val) }, suggestedMax: Math.max(...dataset.map(d => d.meta), 1) * 1.15 }
                     }
                 }
             });
 
             const rankingContainer = document.getElementById('ranking-container');
             rankingContainer.innerHTML = '';
-            const dadosOrdenados = [...datasetOriginal].sort((a, b) => b.atingido - a.atingido);
+            const dadosOrdenados = [...dataset].sort((a, b) => b.atingido - a.atingido);
             const maxPercent = Math.max(...dadosOrdenados.map(d => d.atingido));
 
             dadosOrdenados.forEach((linha, index) => {
@@ -510,7 +614,7 @@
                         }
                     },
                     scales: {
-                        y: { beginAtZero: true, ticks: { callback: (val) => formatador(val) }, suggestedMax: Math.max(valorMeta, valorRealizado) * 1.25 }
+                        y: { beginAtZero: true, ticks: { callback: (val) => formatador(val) }, suggestedMax: Math.max(valorMeta, valorRealizado, 1) * 1.25 }
                     }
                 }
             });
