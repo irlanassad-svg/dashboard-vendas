@@ -265,35 +265,15 @@
     <script>
         Chart.register(ChartDataLabels);
 
-        // Atualizado com base na image_c072e5.png
-        const dadosPositivacao = [
-            { rca: "303", cliente: "NOVO HORIZONTE", base: 81, meta: 69, realizado: 28, atingido: 0.4067 },
-            { rca: "317", cliente: "JARDIM", base: 76, meta: 65, realizado: 15, atingido: 0.2322 },
-            { rca: "307", cliente: "PACOVAL", base: 95, meta: 81, realizado: 15, atingido: 0.1858 },
-            { rca: "302", cliente: "BRASIL NOVO", base: 139, meta: 118, realizado: 41, atingido: 0.3470 },
-            { rca: "306", cliente: "REDE UNIDOS", base: 19, meta: 16, realizado: 4, atingido: 0.2477 },
-            { rca: "315", cliente: "P SOCORRO", base: 76, meta: 65, realizado: 14, atingido: 0.2167 }
-        ];
+        // 1. Mudamos de 'const' para 'let' e começamos com listas vazias
+        let dadosPositivacao = [];
+        let dadosFaturamento = [];
+        let dadosVolume = [];
 
-        // Atualizado com base na image_c01896.png
-        const dadosFaturamento = [
-            { rca: "303", cliente: "NOVO HORIZONTE", base: 101176.55, meta: 123435.39, realizado: 16075.54, atingido: 0.1302 },
-            { rca: "317", cliente: "JARDIM", base: 90486.33, meta: 110393.32, realizado: 7593.61, atingido: 0.0688 },
-            { rca: "307", cliente: "PACOVAL", base: 66194.26, meta: 80757.00, realizado: 9065.87, atingido: 0.1123 },
-            { rca: "302", cliente: "BRASIL NOVO", base: 216348.59, meta: 263945.28, realizado: 34696.39, atingido: 0.1315 },
-            { rca: "306", cliente: "REDE UNIDOS", base: 184113.38, meta: 224618.32, realizado: 10415.13, atingido: 0.0464 },
-            { rca: "315", cliente: "P SOCORRO", base: 78292.93, meta: 95517.37, realizado: 5401.55, atingido: 0.0566 }
-        ];
-
-        // Atualizado com base na image_c00d10.png
-        const dadosVolume = [
-            { rca: "303", cliente: "NOVO HORIZONTE", base: 20447, meta: 24945.34, realizado: 3107, atingido: 3107 / 24945.34 },
-            { rca: "317", cliente: "JARDIM", base: 20237, meta: 24689.14, realizado: 1001, atingido: 1001 / 24689.14 },
-            { rca: "307", cliente: "PACOVAL", base: 12499, meta: 15248.78, realizado: 1882, atingido: 1882 / 15248.78 },
-            { rca: "302", cliente: "BRASIL NOVO", base: 41737, meta: 50919.14, realizado: 8982, atingido: 8982 / 50919.14 },
-            { rca: "306", cliente: "REDE UNIDOS", base: 23350, meta: 28487, realizado: 1061, atingido: 1061 / 28487 },
-            { rca: "315", cliente: "P SOCORRO", base: 20051, meta: 24462.22, realizado: 1876, atingido: 1876 / 24462.22 }
-        ];
+        // =========================================================================
+        // COLE AQUI O SEU LINK LONGO COPIADO DO GOOGLE APPS SCRIPT
+        // =========================================================================
+        const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbyX9gI_gxhwPF2Q2olz-muI9IGz8YBjUSXKNOw0XL2VN5K1eFGS5cDD88Csrrbc_7Z07Q/exec";
 
         let abaAtiva = 'positivacao'; 
         let vendedorSelecionado = 'Todos'; 
@@ -306,6 +286,36 @@
         const formatarInteiro = (valor) => new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(Math.round(valor));
         const formatarMoeda = (valor) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
         const formatarPercentual = (valor) => (valor * 100).toFixed(2).replace('.', ',') + '%';
+
+        // 2. Nova função assíncrona para procurar os dados na Google Planilha
+        async function carregarDadosExternos() {
+            try {
+                // Mensagem temporária enquanto carrega
+                document.getElementById('main-title').innerText = "A carregar dados...";
+                
+                const resposta = await fetch(URL_GOOGLE_SCRIPT);
+                if (!resposta.ok) throw new Error("Erro ao aceder à planilha");
+                
+                const dados = await resposta.json();
+                
+                // Alimenta as variáveis globais do dashboard com o JSON recebido
+                dadosPositivacao = dados.positivacao || [];
+                dadosFaturamento = dados.faturamento || [];
+                dadosVolume = dados.volume || [];
+                
+                // Atualiza dinamicamente a data de modificação para o dia de hoje
+                const hoje = new Date();
+                document.getElementById('last-update').innerHTML = `<i class="fas fa-clock"></i> Última atualização: ${hoje.toLocaleDateString('pt-BR')}`;
+
+                // Renderiza a interface inicial
+                setTab('positivacao');
+
+            } catch (erro) {
+                console.error("Erro crítico ao carregar dados:", erro);
+                document.getElementById('main-title').innerText = "Erro na Ligação";
+                alert("Não foi possível carregar os dados. Verifique a sua ligação ou o link do Apps Script.");
+            }
+        }
 
         function setTab(aba) {
             abaAtiva = aba;
@@ -390,8 +400,9 @@
 
         function renderizarViewTodos() {
             const datasetOriginal = abaAtiva === 'positivacao' ? dadosPositivacao : (abaAtiva === 'faturamento' ? dadosFaturamento : dadosVolume);
+            
             const searchTerm = document.getElementById('search-box')?.value.toLowerCase() || '';
-            const dataset = datasetOriginal.filter(d => d.cliente.toLowerCase().includes(searchTerm) || d.rca.includes(searchTerm));
+            const dataset = datasetOriginal.filter(d => d.cliente.toString().toLowerCase().includes(searchTerm) || d.rca.toString().includes(searchTerm));
 
             const formatadorValor = abaAtiva === 'faturamento' ? formatarMoeda : formatarInteiro;
             
@@ -399,9 +410,9 @@
             document.getElementById('table-col-base').innerText = abaAtiva === 'faturamento' ? 'Ano 2025' : (abaAtiva === 'volume' ? 'Volume 2025' : 'Base CLI');
             document.getElementById('chart-title').innerText = abaAtiva === 'positivacao' ? 'Comparativo: Positivação de Clientes' : (abaAtiva === 'faturamento' ? 'Comparativo: Faturamento Financeiro' : 'Comparativo: Volume de Vendas');
 
-            const totalBase = dataset.reduce((acc, curr) => acc + curr.base, 0);
-            const totalMeta = dataset.reduce((acc, curr) => acc + curr.meta, 0);
-            const totalRealizado = dataset.reduce((acc, curr) => acc + curr.realizado, 0);
+            const totalBase = dataset.reduce((acc, curr) => acc + Number(curr.base || 0), 0);
+            const totalMeta = dataset.reduce((acc, curr) => acc + Number(curr.meta || 0), 0);
+            const totalRealizado = dataset.reduce((acc, curr) => acc + Number(curr.realizado || 0), 0);
             const mediaAtingido = totalMeta > 0 ? (totalRealizado / totalMeta) : 0; 
 
             document.getElementById('kpi-base').innerText = formatadorValor(totalBase);
@@ -450,19 +461,20 @@
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
             datasetTabela.forEach((linha) => {
+                const atingValue = Number(linha.atingido || 0);
                 let corBadge = 'bg-yellow-100 text-yellow-800';
                 let icone = 'fa-minus';
-                if (linha.atingido < limiteAviso) { corBadge = 'bg-red-100 text-red-800'; icone = 'fa-arrow-down'; }
-                else if (linha.atingido >= limiteSucesso) { corBadge = 'bg-emerald-100 text-emerald-800'; icone = 'fa-arrow-up'; }
+                if (atingValue < limiteAviso) { corBadge = 'bg-red-100 text-red-800'; icone = 'fa-arrow-down'; }
+                else if (atingValue >= limiteSucesso) { corBadge = 'bg-emerald-100 text-emerald-800'; icone = 'fa-arrow-up'; }
 
                 tableBody.innerHTML += `
                     <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                         <td class="p-4 text-slate-500">${linha.rca}</td>
                         <td class="p-4 font-medium text-slate-800">${linha.cliente}</td>
-                        <td class="p-4 text-right">${formatadorValor(linha.base)}</td>
-                        <td class="p-4 text-right text-indigo-600 font-medium">${formatadorValor(linha.meta)}</td>
-                        <td class="p-4 text-right text-emerald-600 font-bold">${formatadorValor(linha.realizado)}</td>
-                        <td class="p-4 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${corBadge}">${formatarPercentual(linha.atingido)}</span></td>
+                        <td class="p-4 text-right">${formatadorValor(Number(linha.base || 0))}</td>
+                        <td class="p-4 text-right text-indigo-600 font-medium">${formatadorValor(Number(linha.meta || 0))}</td>
+                        <td class="p-4 text-right text-emerald-600 font-bold">${formatadorValor(Number(linha.realizado || 0))}</td>
+                        <td class="p-4 text-center"><span class="px-2 py-1 rounded-full text-xs font-bold ${corBadge}">${formatarPercentual(atingValue)}</span></td>
                         <td class="p-4 text-center"><i class="fas ${icone} ${corBadge.replace('bg-', 'text-').split(' ')[1]}"></i></td>
                     </tr>
                 `;
@@ -477,8 +489,8 @@
                 data: {
                     labels: dataset.map(d => d.cliente), 
                     datasets: [
-                        { label: 'Meta', data: dataset.map(d => d.meta), backgroundColor: corBaseMeta, borderRadius: 4 },
-                        { label: 'Realizado', data: dataset.map(d => d.realizado), backgroundColor: 'rgba(16, 185, 129, 0.9)', borderRadius: 4 }
+                        { label: 'Meta', data: dataset.map(d => Number(d.meta || 0)), backgroundColor: corBaseMeta, borderRadius: 4 },
+                        { label: 'Realizado', data: dataset.map(d => Number(d.realizado || 0)), backgroundColor: 'rgba(16, 185, 129, 0.9)', borderRadius: 4 }
                     ]
                 },
                 options: {
@@ -494,15 +506,15 @@
                         tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': ' + formatadorValor(ctx.raw) } }
                     },
                     scales: {
-                        y: { beginAtZero: true, ticks: { callback: (val) => formatadorValor(val) }, suggestedMax: Math.max(...dataset.map(d => d.meta), 1) * 1.15 }
+                        y: { beginAtZero: true, ticks: { callback: (val) => formatadorValor(val) }, suggestedMax: Math.max(...dataset.map(d => Number(d.meta || 0)), 1) * 1.15 }
                     }
                 }
             });
 
             const rankingContainer = document.getElementById('ranking-container');
             rankingContainer.innerHTML = '';
-            const dadosOrdenados = [...dataset].sort((a, b) => b.atingido - a.atingido);
-            const maxPercent = Math.max(...dadosOrdenados.map(d => d.atingido));
+            const dadosOrdenados = [...dataset].sort((a, b) => Number(b.atingido || 0) - Number(a.atingido || 0));
+            const maxPercent = Math.max(...dadosOrdenados.map(d => Number(d.atingido || 0)));
 
             dadosOrdenados.forEach((linha, index) => {
                 let medalha = ''; let corBarra = 'bg-blue-400';
@@ -510,7 +522,7 @@
                 else if (index === 1) { medalha = '🥈'; corBarra = 'bg-emerald-400'; }
                 else if (index === 2) { medalha = '🥉'; corBarra = 'bg-emerald-300'; }
                 else { medalha = `<span class="text-xs text-slate-400">${index + 1}º</span>`; }
-                const visualWidth = (linha.atingido / (maxPercent || 1)) * 100;
+                const visualWidth = (Number(linha.atingido || 0) / (maxPercent || 1)) * 100;
                 rankingContainer.innerHTML += `
                     <div class="flex flex-col group transition-opacity duration-300">
                         <div class="flex justify-between items-center mb-1">
@@ -518,7 +530,7 @@
                                 <span class="w-6 text-center font-bold">${medalha}</span>
                                 <span class="text-sm font-medium text-slate-700">${linha.cliente}</span>
                             </div>
-                            <span class="text-sm font-bold text-slate-900">${formatarPercentual(linha.atingido)}</span>
+                            <span class="text-sm font-bold text-slate-900">${formatarPercentual(Number(linha.atingido || 0))}</span>
                         </div>
                         <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
                             <div class="${corBarra} h-2 rounded-full transition-all duration-1000 ease-out" style="width: ${Math.min(visualWidth, 100)}%"></div>
@@ -529,9 +541,9 @@
         }
 
         function renderizarViewIndividual(rca) {
-            const dPos = dadosPositivacao.find(d => d.rca === rca);
-            const dFat = dadosFaturamento.find(d => d.rca === rca);
-            const dVol = dadosVolume.find(d => d.rca === rca);
+            const dPos = dadosPositivacao.find(d => d.rca.toString() === rca.toString());
+            const dFat = dadosFaturamento.find(d => d.rca.toString() === rca.toString());
+            const dVol = dadosVolume.find(d => d.rca.toString() === rca.toString());
             if(!dPos || !dFat || !dVol) return;
 
             document.getElementById('ind-vendedor-nome').innerText = `${dPos.rca} - ${dPos.cliente}`;
@@ -547,27 +559,27 @@
             document.getElementById('ind-pos-meta').innerText = formatarInteiro(dPos.meta);
             document.getElementById('ind-pos-realizado').innerText = formatarInteiro(dPos.realizado);
             document.getElementById('ind-pos-pct').innerText = formatarPercentual(dPos.atingido);
-            document.getElementById('ind-pos-status').innerHTML = getStatusBadge(dPos.atingido, true, false);
+            document.getElementById('ind-pos-status').innerHTML = getStatusBadge(Number(dPos.atingido || 0), true, false);
 
             document.getElementById('ind-fat-base').innerText = formatarMoeda(dFat.base);
             document.getElementById('ind-fat-meta').innerText = formatarMoeda(dFat.meta);
             document.getElementById('ind-fat-realizado').innerText = formatarMoeda(dFat.realizado);
             document.getElementById('ind-fat-pct').innerText = formatarPercentual(dFat.atingido);
-            document.getElementById('ind-fat-status').innerHTML = getStatusBadge(dFat.atingido, false, false);
+            document.getElementById('ind-fat-status').innerHTML = getStatusBadge(Number(dFat.atingido || 0), false, false);
 
             document.getElementById('ind-vol-base').innerText = formatarInteiro(dVol.base);
             document.getElementById('ind-vol-meta').innerText = formatarInteiro(dVol.meta);
             document.getElementById('ind-vol-realizado').innerText = formatarInteiro(dVol.realizado);
             document.getElementById('ind-vol-pct').innerText = formatarPercentual(dVol.atingido);
-            document.getElementById('ind-vol-status').innerHTML = getStatusBadge(dVol.atingido, false, true);
+            document.getElementById('ind-vol-status').innerHTML = getStatusBadge(Number(dVol.atingido || 0), false, true);
 
             if (chartIndPos) chartIndPos.destroy();
             if (chartIndFat) chartIndFat.destroy();
             if (chartIndVol) chartIndVol.destroy();
 
-            chartIndPos = criarGraficoIndividual('indChartPos', 'Positivação', dPos.meta, dPos.realizado, formatarInteiro, 'rgba(99, 102, 241, 0.9)');
-            chartIndFat = criarGraficoIndividual('indChartFat', 'Faturamento', dFat.meta, dFat.realizado, formatarMoeda, 'rgba(59, 130, 246, 0.9)');
-            chartIndVol = criarGraficoIndividual('indChartVol', 'Volume', dVol.meta, dVol.realizado, formatarInteiro, 'rgba(245, 158, 11, 0.9)');
+            chartIndPos = criarGraficoIndividual('indChartPos', 'Positivação', Number(dPos.meta || 0), Number(dPos.realizado || 0), formatarInteiro, 'rgba(99, 102, 241, 0.9)');
+            chartIndFat = criarGraficoIndividual('indChartFat', 'Faturamento', Number(dFat.meta || 0), Number(dFat.realizado || 0), formatarMoeda, 'rgba(59, 130, 246, 0.9)');
+            chartIndVol = criarGraficoIndividual('indChartVol', 'Volume', Number(dVol.meta || 0), Number(dVol.realizado || 0), formatarInteiro, 'rgba(245, 158, 11, 0.9)');
         }
 
         function criarGraficoIndividual(canvasId, tituloLabel, valorMeta, valorRealizado, formatador, corMeta) {
@@ -604,7 +616,7 @@
                 }
             });
         }
-        setTab('positivacao');
+
+        // Executa a procura automática dos dados assim que a página abre
+        carregarDadosExternos();
     </script>
-</body>
-</html>
