@@ -33,7 +33,6 @@
         <div class="mb-4 flex justify-between items-center flex-wrap gap-4">
             <div class="flex items-center gap-6">
                 <div class="bg-slate-800 p-3 rounded-xl shadow-lg">
-                    <!-- Nome da logo do topo padronizado para evitar erros -->
                     <img src="logo_minas_mais.png" alt="Logo Distribuidora Minas Mais" class="h-12 w-auto object-contain" onerror="this.src='https://placehold.co/180x50/1e293b/ffffff?text=Minas+Mais'">
                 </div>
                 <div>
@@ -151,7 +150,7 @@
                                     <div class="flex items-center justify-end gap-1"><span id="table-col-base">Base CLI</span> <i class="fas fa-sort text-slate-300 sort-icon" id="sort-base"></i></div>
                                 </th>
                                 <th class="p-4 font-semibold cursor-pointer hover:bg-slate-100 transition-colors group text-right" onclick="ordenarTabela('meta')">
-                                    <div class="flex items-center justify-end gap-1">Meta (85%) <i class="fas fa-sort text-slate-300 sort-icon" id="sort-meta"></i></div>
+                                    <div class="flex items-center justify-end gap-1">Meta <i class="fas fa-sort text-slate-300 sort-icon" id="sort-meta"></i></div>
                                 </th>
                                 <th class="p-4 font-semibold cursor-pointer hover:bg-slate-100 transition-colors group text-right" onclick="ordenarTabela('realizado')">
                                     <div class="flex items-center justify-end gap-1">Realizado <i class="fas fa-sort text-slate-300 sort-icon" id="sort-realizado"></i></div>
@@ -217,7 +216,7 @@
                         <span id="ind-vol-status" class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100">--</span>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                        <div class="p-4 bg-slate-50 rounded-lg"><p class="text-[10px] text-slate-400 uppercase font-bold">Ano 2025 (UN)</p><p class="font-bold text-slate-700" id="ind-vol-base">0</p></div>
+                        <div class="p-4 bg-slate-50 rounded-lg"><p class="text-[10px] text-slate-400 uppercase font-bold">Volume 2025</p><p class="font-bold text-slate-700" id="ind-vol-base">0</p></div>
                         <div class="p-4 bg-indigo-50 rounded-lg"><p class="text-[10px] text-indigo-400 uppercase font-bold">Meta</p><p class="font-bold text-indigo-700" id="ind-vol-meta">0</p></div>
                         <div class="p-4 bg-emerald-50 rounded-lg"><p class="text-[10px] text-emerald-500 uppercase font-bold">Realizado</p><p class="font-bold text-emerald-700" id="ind-vol-realizado">0</p></div>
                         <div class="p-4 bg-amber-50 rounded-lg"><p class="text-[10px] text-amber-600 uppercase font-bold">% Ating.</p><p class="font-bold text-amber-700" id="ind-vol-pct">0%</p></div>
@@ -227,7 +226,6 @@
             </div>
         </div>
 
-        <!-- Rodapé elegante com as logos das indústrias parceiras de forma uniforme -->
         <div class="mt-12 glass-card border-t-4 border-slate-700">
             <div class="flex items-center justify-between mb-6 border-b border-slate-100 pb-3">
                 <h3 class="text-lg font-bold text-slate-700 flex items-center gap-2">
@@ -238,31 +236,24 @@
             </div>
             
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-6 items-center justify-center">
-                <!-- Nívea -->
                 <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:-translate-y-1 hover:shadow-lg hover:border-blue-400 transition-all duration-300 flex items-center justify-center h-24 group">
                     <img src="nivea.webp" alt="Nivea" class="max-h-16 max-w-full object-contain group-hover:scale-110 transition-transform duration-300" onerror="this.src='https://placehold.co/120x60/ffffff/0033a0?text=NIVEA'">
                 </div>
-                <!-- M. Dias Branco -->
                 <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:-translate-y-1 hover:shadow-lg hover:border-blue-400 transition-all duration-300 flex items-center justify-center h-24 group">
                     <img src="m_dias_branco.png" alt="M. Dias Branco" class="max-h-16 max-w-full object-contain group-hover:scale-110 transition-transform duration-300" onerror="this.src='https://placehold.co/120x60/ffffff/004b87?text=M.+Dias+Branco'">
                 </div>
-                <!-- Fante -->
                 <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:-translate-y-1 hover:shadow-lg hover:border-blue-400 transition-all duration-300 flex items-center justify-center h-24 group">
                     <img src="fante.png" alt="Fante" class="max-h-16 max-w-full object-contain group-hover:scale-110 transition-transform duration-300" onerror="this.src='https://placehold.co/120x60/ffffff/4a001a?text=Fante'">
                 </div>
-                <!-- Superfoods -->
                 <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:-translate-y-1 hover:shadow-lg hover:border-blue-400 transition-all duration-300 flex items-center justify-center h-24 group">
                     <img src="superfoods.png" alt="Superfoods" class="max-h-16 max-w-full object-contain group-hover:scale-110 transition-transform duration-300" onerror="this.src='https://placehold.co/120x60/ffffff/eaaa00?text=Superfoods'">
                 </div>
-                <!-- Santher -->
                 <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:-translate-y-1 hover:shadow-lg hover:border-blue-400 transition-all duration-300 flex items-center justify-center h-24 group">
                     <img src="santher.png" alt="Santher" class="max-h-16 max-w-full object-contain group-hover:scale-110 transition-transform duration-300" onerror="this.src='https://placehold.co/120x60/ffffff/112e51?text=Santher'">
                 </div>
-                <!-- SC Johnson -->
                 <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:-translate-y-1 hover:shadow-lg hover:border-blue-400 transition-all duration-300 flex items-center justify-center h-24 group">
                     <img src="sc_johnson.png" alt="SC Johnson" class="max-h-16 max-w-full object-contain group-hover:scale-110 transition-transform duration-300" onerror="this.src='https://placehold.co/120x60/ffffff/000000?text=SC+Johnson'">
                 </div>
-                <!-- Nutrimental (Fundo escuro para a logo branca brilhar perfeitamente) -->
                 <div class="bg-slate-800 border border-slate-700 rounded-xl p-3 shadow-sm hover:-translate-y-1 hover:shadow-lg hover:border-yellow-400 transition-all duration-300 flex items-center justify-center h-24 group">
                     <img src="nutrimental.png" alt="Nutrimental" class="max-h-16 max-w-full object-contain group-hover:scale-110 transition-transform duration-300" onerror="this.src='https://placehold.co/120x60/1e293b/ffffff?text=Nutrimental'">
                 </div>
@@ -274,31 +265,34 @@
     <script>
         Chart.register(ChartDataLabels);
 
+        // Atualizado com base na image_c072e5.png
         const dadosPositivacao = [
-            { rca: "303", cliente: "NOVO HORIZONTE", base: 106, meta: 90, realizado: 22, atingido: 0.2444 },
-            { rca: "317", cliente: "JARDIM", base: 76, meta: 65, realizado: 12, atingido: 0.1846 },
-            { rca: "307", cliente: "PACOVAL", base: 97, meta: 82, realizado: 8, atingido: 0.0976 },
-            { rca: "302", cliente: "BRASIL NOVO", base: 138, meta: 117, realizado: 27, atingido: 0.2308 },
-            { rca: "306", cliente: "REDE UNIDOS", base: 29, meta: 25, realizado: 4, atingido: 0.1600 },
-            { rca: "315", cliente: "P SOCORRO", base: 76, meta: 65, realizado: 11, atingido: 0.1692 }
+            { rca: "303", cliente: "NOVO HORIZONTE", base: 81, meta: 69, realizado: 28, atingido: 0.4067 },
+            { rca: "317", cliente: "JARDIM", base: 76, meta: 65, realizado: 15, atingido: 0.2322 },
+            { rca: "307", cliente: "PACOVAL", base: 95, meta: 81, realizado: 15, atingido: 0.1858 },
+            { rca: "302", cliente: "BRASIL NOVO", base: 139, meta: 118, realizado: 41, atingido: 0.3470 },
+            { rca: "306", cliente: "REDE UNIDOS", base: 19, meta: 16, realizado: 4, atingido: 0.2477 },
+            { rca: "315", cliente: "P SOCORRO", base: 76, meta: 65, realizado: 14, atingido: 0.2167 }
         ];
 
+        // Atualizado com base na image_c01896.png
         const dadosFaturamento = [
-            { rca: "303", cliente: "NOVO HORIZONTE", base: 101176.55, meta: 123435.39, realizado: 13712.93, atingido: 0.1111 },
-            { rca: "317", cliente: "JARDIM", base: 90486.33, meta: 110393.32, realizado: 6724.25, atingido: 0.0609 },
-            { rca: "307", cliente: "PACOVAL", base: 66194.26, meta: 80757.00, realizado: 7631.22, atingido: 0.0945 },
-            { rca: "302", cliente: "BRASIL NOVO", base: 216348.59, meta: 263945.28, realizado: 19105.51, atingido: 0.0724 },
+            { rca: "303", cliente: "NOVO HORIZONTE", base: 101176.55, meta: 123435.39, realizado: 16075.54, atingido: 0.1302 },
+            { rca: "317", cliente: "JARDIM", base: 90486.33, meta: 110393.32, realizado: 7593.61, atingido: 0.0688 },
+            { rca: "307", cliente: "PACOVAL", base: 66194.26, meta: 80757.00, realizado: 9065.87, atingido: 0.1123 },
+            { rca: "302", cliente: "BRASIL NOVO", base: 216348.59, meta: 263945.28, realizado: 34696.39, atingido: 0.1315 },
             { rca: "306", cliente: "REDE UNIDOS", base: 184113.38, meta: 224618.32, realizado: 10415.13, atingido: 0.0464 },
-            { rca: "315", cliente: "P SOCORRO", base: 78292.93, meta: 95517.37, realizado: 3485.55, atingido: 0.0365 }
+            { rca: "315", cliente: "P SOCORRO", base: 78292.93, meta: 95517.37, realizado: 5401.55, atingido: 0.0566 }
         ];
 
+        // Atualizado com base na image_c00d10.png
         const dadosVolume = [
-            { rca: "303", cliente: "NOVO HORIZONTE", base: 20447, meta: 24945.34, realizado: 139, atingido: 139 / 24945.34 },
-            { rca: "317", cliente: "JARDIM", base: 20237, meta: 24689.14, realizado: 51, atingido: 51 / 24689.14 },
-            { rca: "307", cliente: "PACOVAL", base: 12499, meta: 15248.78, realizado: 65, atingido: 65 / 15248.78 },
-            { rca: "302", cliente: "BRASIL NOVO", base: 41737, meta: 50919.14, realizado: 232, atingido: 232 / 50919.14 },
-            { rca: "306", cliente: "REDE UNIDOS", base: 23350, meta: 28487, realizado: 62, atingido: 62 / 28487 },
-            { rca: "315", cliente: "P SOCORRO", base: 20051, meta: 24462.22, realizado: 41, atingido: 41 / 24462.22 }
+            { rca: "303", cliente: "NOVO HORIZONTE", base: 20447, meta: 24945.34, realizado: 3107, atingido: 3107 / 24945.34 },
+            { rca: "317", cliente: "JARDIM", base: 20237, meta: 24689.14, realizado: 1001, atingido: 1001 / 24689.14 },
+            { rca: "307", cliente: "PACOVAL", base: 12499, meta: 15248.78, realizado: 1882, atingido: 1882 / 15248.78 },
+            { rca: "302", cliente: "BRASIL NOVO", base: 41737, meta: 50919.14, realizado: 8982, atingido: 8982 / 50919.14 },
+            { rca: "306", cliente: "REDE UNIDOS", base: 23350, meta: 28487, realizado: 1061, atingido: 1061 / 28487 },
+            { rca: "315", cliente: "P SOCORRO", base: 20051, meta: 24462.22, realizado: 1876, atingido: 1876 / 24462.22 }
         ];
 
         let abaAtiva = 'positivacao'; 
@@ -307,7 +301,7 @@
         let chartIndPos = null;
         let chartIndFat = null;
         let chartIndVol = null;
-        let ordenacaoAtual = { coluna: 'atingido', direcao: 'desc' }; // Estado da ordenação inicial por % atingido decrescente
+        let ordenacaoAtual = { coluna: 'atingido', direcao: 'desc' }; 
 
         const formatarInteiro = (valor) => new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(Math.round(valor));
         const formatarMoeda = (valor) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
@@ -319,7 +313,6 @@
             const tabFat = document.getElementById('tab-faturamento');
             const tabVol = document.getElementById('tab-volume');
             
-            // Reset styles
             [tabPos, tabFat, tabVol].forEach(el => {
                 el.className = "px-4 py-2 font-bold text-slate-500 hover:text-slate-800 focus:outline-none transition-colors border-b-2 border-transparent";
             });
@@ -346,10 +339,8 @@
 
         function ordenarTabela(coluna) {
             if (ordenacaoAtual.coluna === coluna) {
-                // Inverte a direção se clicar na mesma coluna
                 ordenacaoAtual.direcao = ordenacaoAtual.direcao === 'asc' ? 'desc' : 'asc';
             } else {
-                // Nova coluna, padrão é decrescente (maior para menor)
                 ordenacaoAtual.coluna = coluna;
                 ordenacaoAtual.direcao = 'desc';
             }
@@ -399,8 +390,6 @@
 
         function renderizarViewTodos() {
             const datasetOriginal = abaAtiva === 'positivacao' ? dadosPositivacao : (abaAtiva === 'faturamento' ? dadosFaturamento : dadosVolume);
-            
-            // Search filter implementation
             const searchTerm = document.getElementById('search-box')?.value.toLowerCase() || '';
             const dataset = datasetOriginal.filter(d => d.cliente.toLowerCase().includes(searchTerm) || d.rca.includes(searchTerm));
 
@@ -437,13 +426,11 @@
             }
             percentIcon.innerHTML = '<i class="fas fa-percent"></i>';
 
-            // --- Lógica de Ordenação da Tabela ---
             let datasetTabela = [...dataset];
             datasetTabela.sort((a, b) => {
                 let valA = a[ordenacaoAtual.coluna];
                 let valB = b[ordenacaoAtual.coluna];
                 
-                // Tratar strings para não ser case-sensitive
                 if (typeof valA === 'string') valA = valA.toLowerCase();
                 if (typeof valB === 'string') valB = valB.toLowerCase();
                 
@@ -452,7 +439,6 @@
                 return 0;
             });
 
-            // Atualiza os ícones de indicação de ordenação ativa no cabeçalho
             document.querySelectorAll('.sort-icon').forEach(icon => {
                 icon.className = 'fas fa-sort text-slate-300 sort-icon';
             });
@@ -460,7 +446,6 @@
             if (activeIcon) {
                 activeIcon.className = `fas fa-sort-${ordenacaoAtual.direcao === 'asc' ? 'up' : 'down'} text-blue-600 sort-icon`;
             }
-            // -------------------------------------
 
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
